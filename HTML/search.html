@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        #search{
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #search>input[type="text"]{
+            width:10%;
+            height: 20px;
+        }
+        #data{
+            border-collapse: collapse;
+            margin: auto;
+            text-align: center;
+            width: 30%;
+            line-height: 40px;
+        }
+       td{
+            border: 1px solid black;
+        }
+    </style>
+    <script src="./node_modules/vue/dist/vue.min.js"></script>
+    <script src="./node_modules/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <form id="search">
+            <input name="search" type="text" v-model="msg">
+            <select v-model="field">
+                <option value="name">name</option>
+                <option value="sex">sex</option>
+                <option value="age">age</option>
+                <option value="birthday">birthday</option>
+                <option value="description">description</option>
+            </select>
+            <input @click="search" type="button" value="asd"></input>
+        </form>
+        <table id="data">
+            <thead>
+                <tr>
+                    <td>姓名</td>
+                    <td>性别</td>
+                    <td>年龄</td>
+                    <td>生日</td>
+                    <td>描述</td>
+                </tr>
+            </thead>
+            <tbody>
+               <tr v-for="people in peoples">
+                   <td>
+                   <span v-html="people.name"></span>
+                   </td>
+                   <td>
+                       <span v-if="people.sex==true">女</span>
+                       <span v-else>男</span>
+                   </td>
+                   <td>
+                       <span v-html="people.age"></span>
+                   </td>
+                   <td>
+                       <span v-html="datatoString(people.birthday)"></span>
+                   </td>
+                   <td>
+                       <span v-html="people.description"></span>
+                   </td>
+               </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+<script type="module">
+    function f() {
+        return function (time) {
+            alert(time);
+        }
+    }
+    var vm = new Vue({
+        el:"#app",
+        data:{
+            msg:"",
+            peoples:[],
+            field: "name"
+        },
+        computed:{
+            datatoString()
+            {
+                return (time)=>{
+                let  date= new Date(time);
+                return date.getFullYear() + "-" + date.getMonth() + "-" + date.getDay();}
+            }
+        },
+        methods:{
+            search()
+            {
+                let _this=this;
+                axios.get("http://127.0.0.1:8081/search",{
+                    params:{
+                        msg:_this.msg,
+                        field:_this.field
+                    }
+                    }).then((response) => _this.peoples=response.data).catch((err)=>{
+                        alert("错误");
+                        console.log(err);
+                });
+            }
+        },
+        created:function(){
+            let _this=this;
+            axios.get("http://127.0.0.1:8081/all").then((response) => {
+                _this.peoples=response.data;
+            }).catch((err)=>{
+                alert("错误");
+                console.log(err);
+            })
+        }
+    })
+</script>
+</html>
